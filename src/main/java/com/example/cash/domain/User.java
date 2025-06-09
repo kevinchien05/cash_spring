@@ -22,17 +22,17 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", nullable = false)
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Convert(converter = PassConverter.class)
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "role", nullable=false, columnDefinition="varchar(255) default 'public'")
+    @Column(name = "role", nullable = false, columnDefinition = "varchar(255) default 'public'")
     private String role;
 
     public Long getId() {

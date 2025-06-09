@@ -4,4 +4,8 @@ import com.example.cash.dto.UserCreateDTO;
 
 public interface UserService {
     public void createNewUser(UserCreateDTO dto);
+
+    public UserCreateDTO findByEmail(String email);
+    
+    public void updateUser(String email, UserCreateDTO dto);
 }

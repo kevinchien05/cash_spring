@@ -24,4 +24,25 @@ public class UserServiceImpl implements UserService{
         userRepository.save(user);
     }
 
+    @Override
+    public UserCreateDTO findByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        UserCreateDTO dto = new UserCreateDTO();
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        dto.setPassword(user.getPassword());
+        dto.setRole(user.getRole());
+        return dto;
+    }
+
+    @Override
+    public void updateUser(String email, UserCreateDTO dto) {
+        User user = userRepository.findByEmail(email);
+        user.setUsername(dto.getUsername());
+        user.setEmail(dto.getEmail());
+        user.setPassword(dto.getPassword());
+        user.setRole(dto.getRole());
+        userRepository.save(user);
+    }
+
 }
