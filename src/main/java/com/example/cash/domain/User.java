@@ -2,10 +2,7 @@ package com.example.cash.domain;
 
 import java.io.Serializable;
 
-import com.example.cash.converter.PassConverter;
-
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,7 +25,7 @@ public class User implements Serializable {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Convert(converter = PassConverter.class)
+    // @Convert(converter = PassConverter.class)
     @Column(name = "password", nullable = false)
     private String password;
 
