@@ -28,8 +28,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public void createNewUser(UserCreateDTO dto) {
         User user = new User();
-        user.setUsername(dto.getUsername());
-        user.setEmail(dto.getEmail());
+        user.setUsername(dto.getUsername().toLowerCase());
+        user.setEmail(dto.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(dto.getRole());
         userRepository.save(user);
@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserCreateDTO findByEmail(String email) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email.toLowerCase());
         UserCreateDTO dto = new UserCreateDTO();
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
@@ -48,11 +48,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public void updateUser(String email, UserCreateDTO dto) {
-        User user = userRepository.findByEmail(email);
-        user.setUsername(dto.getUsername());
-        user.setEmail(dto.getEmail());
+        User user = userRepository.findByEmail(email.toLowerCase());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setRole(dto.getRole());
         userRepository.save(user);
     }
 
