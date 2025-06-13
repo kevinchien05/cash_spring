@@ -1,9 +1,9 @@
 package com.example.cash.web;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,9 +30,13 @@ public class AuthenticationResource {
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/register/user")
-    public ResponseEntity<Void> createNewUser(@RequestBody UserCreateDTO dto) throws URISyntaxException {
-        userService.createNewUser(dto);
-        return ResponseEntity.created(new URI("/register/user")).build();
+    public ResponseEntity<String> createNewUser(@RequestBody UserCreateDTO dto) throws URISyntaxException {
+        String result = userService.createNewUser(dto);
+        return switch (result) {
+            case "Username already used", "Email already used" -> ResponseEntity.status(HttpStatus.CONFLICT).body(result);
+            case "User Created" -> ResponseEntity.status(HttpStatus.CREATED).body(result);
+            default -> ResponseEntity.badRequest().body("Unknown error");
+        };
     }
 
     @PostMapping("/login")
@@ -45,7 +49,7 @@ public class AuthenticationResource {
     }
 
     @PostMapping("/forget/email")
-    public ResponseEntity<UserCreateDTO> findEmail(@RequestBody UserCreateDTO dto){
+    public ResponseEntity<UserCreateDTO> findEmail(@RequestBody UserCreateDTO dto) {
         UserCreateDTO dtoUser = userService.findByEmail(dto.getEmail().toLowerCase());
         return ResponseEntity.ok(dtoUser);
     }

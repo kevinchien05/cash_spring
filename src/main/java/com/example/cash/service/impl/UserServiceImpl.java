@@ -26,13 +26,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private BCryptPasswordEncoder passwordEncoder;
 
     @Override
-    public void createNewUser(UserCreateDTO dto) {
+    public String createNewUser(UserCreateDTO dto) {
+        if(userRepository.findByEmail(dto.getEmail().toLowerCase()) != null){
+            return "Email already used";
+        }else if (userRepository.findByUsername(dto.getUsername().toLowerCase()) != null){
+            return "Username already used";
+        }
         User user = new User();
         user.setUsername(dto.getUsername().toLowerCase());
         user.setEmail(dto.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(dto.getRole());
         userRepository.save(user);
+        return "User Created";
     }
 
     @Override
