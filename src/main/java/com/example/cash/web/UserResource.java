@@ -2,6 +2,7 @@ package com.example.cash.web;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,13 @@ public class UserResource {
         UserCreateDTO dto = userService.findByEmail(email);    
         return ResponseEntity.ok().body(dto);
     }
+
+    @GetMapping("/user")
+    public ResponseEntity<List<UserCreateDTO>> findAllUser() {
+        List<UserCreateDTO> dtos = userService.findAllUser();
+        return ResponseEntity.ok(dtos);
+    }
+    
 
     @PutMapping("/update/user/{email}")
     public ResponseEntity<Void> updateUser(@PathVariable String email, @RequestBody UserCreateDTO dto) {

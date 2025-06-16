@@ -1,6 +1,8 @@
 package com.example.cash.service.impl;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -66,6 +68,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.emptyList());
+    }
+
+    @Override
+    public List<UserCreateDTO> findAllUser() {
+        List<User> users = userRepository.findAll();
+        return users.stream().map((user) -> {
+            UserCreateDTO dto = new UserCreateDTO();
+            dto.setUsername(user.getUsername());
+            dto.setEmail(user.getEmail());
+            dto.setPassword(user.getPassword());
+            dto.setRole(user.getRole());
+            return dto;
+        }).collect(Collectors.toList());
     }
 
 }

@@ -1,5 +1,7 @@
 package com.example.cash.service;
 
+import java.util.List;
+
 import com.example.cash.dto.UserCreateDTO;
 
 public interface UserService {
@@ -8,4 +10,6 @@ public interface UserService {
     public UserCreateDTO findByEmail(String email);
     
     public void updateUser(String email, UserCreateDTO dto);
+
+    public List<UserCreateDTO> findAllUser();
 }
