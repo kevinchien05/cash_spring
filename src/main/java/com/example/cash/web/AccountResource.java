@@ -2,19 +2,23 @@ package com.example.cash.web;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cash.dto.AccountDTO;
 import com.example.cash.service.AccountService;
+
 
 
 
@@ -41,6 +45,12 @@ public class AccountResource {
     public ResponseEntity<Void> deleteAccount(@PathVariable Long id){
         accountService.deleteAccount(id);
         return ResponseEntity.ok().build();
+    }
+    
+    @GetMapping("/accounts")
+    public ResponseEntity<List<AccountDTO>> getAllAccountByUserID(@RequestParam Long id) {
+        List<AccountDTO> dtos = accountService.findAccountByUser(id);
+        return ResponseEntity.ok(dtos);
     }
     
 }

@@ -3,6 +3,8 @@ package com.example.cash.dto;
 import java.math.BigDecimal;
 
 public class AccountDTO {
+    private Long id;
+
     private String name;
 
     private BigDecimal balance;
@@ -41,6 +43,14 @@ public class AccountDTO {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
 
