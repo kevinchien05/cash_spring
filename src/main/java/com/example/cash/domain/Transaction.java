@@ -2,7 +2,7 @@ package com.example.cash.domain;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.sql.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -25,9 +24,8 @@ public class Transaction implements Serializable {
     private Long id;
 
     @Column(name = "date", nullable = false)
-    private Timestamp date;
+    private Date date;
 
-    @Lob
     @Column(name = "description")
     private String description;
 
@@ -51,14 +49,6 @@ public class Transaction implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Timestamp getDate() {
-        return date;
-    }
-
-    public void setDate(Timestamp date) {
-        this.date = date;
     }
 
     public String getDescription() {
@@ -99,6 +89,14 @@ public class Transaction implements Serializable {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
 }
