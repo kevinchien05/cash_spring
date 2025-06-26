@@ -1,5 +1,6 @@
 package com.example.cash.service.impl;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,6 +54,7 @@ public class TransactionServiceImpl implements TransactionService {
         }).collect(Collectors.toList()); 
     }
 
+    @Transactional
     @Override
     public String addNewTransaction(TransactionDTO dto, Long accountId) {
         Transaction transaction = new Transaction();
@@ -65,17 +67,57 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setAccount(account);
         transaction.setCategory(category);
         transactionRepository.save(transaction);
+        BigDecimal total;
+        //true anggap masuk
+        if(dto.getStatus()){
+            total = account.getBalance().add(dto.getTotal());
+        }else{
+            total = account.getBalance().subtract(dto.getTotal());
+        }
+        account.setBalance(total);
+        accountRepository.save(account);
         return "Transaction Created";
     }
 
     @Override
     public String editTransaction(Long id, TransactionDTO dto) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction Not Found"));
+        Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category Not Found")); 
+        Account account = accountRepository.findById(transaction.getAccount().getId()).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
+        BigDecimal total = account.getBalance().add(transaction.getTotal());
+        transaction.setDate(dto.getDate());
+        transaction.setDescription(dto.getDescription());
+        transaction.setStatus(dto.getStatus());
+        transaction.setTotal(dto.getTotal());
+        transaction.setCategory(category);
+        transactionRepository.save(transaction);
+        //true anggap masuk
+        if(dto.getStatus()){
+            total = total.add(dto.getTotal());
+        }else{
+            total = total.subtract(dto.getTotal());
+        }
+        account.setBalance(total);
+        accountRepository.save(account);
+        return "Transaction Edited";
     }
 
+    //transaksi berhasil dihapus akan tetapi total balance pada account masi belum berubah
     @Override
     public String deleteTransaction(Long id) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction Not Found"));
+        Account account =  accountRepository.findById(transaction.getAccount().getId()).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
+        BigDecimal total = account.getBalance();
+        //true anggap masuk
+        if(transaction.getStatus()){
+            total = total.subtract(transaction.getTotal());
+        }else{
+            total = total.add(transaction.getTotal());
+        }
+        transactionRepository.delete(transaction);
+        account.setBalance(total);
+        accountRepository.save(account);
+        return "Transaction deleted";
     }
 
 }
