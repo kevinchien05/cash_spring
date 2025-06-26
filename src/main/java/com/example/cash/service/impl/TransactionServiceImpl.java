@@ -46,7 +46,11 @@ public class TransactionServiceImpl implements TransactionService {
             dto.setId(transaction.getId());
             dto.setDate(transaction.getDate());
             dto.setDescription(transaction.getDescription());
-            dto.setStatus(transaction.getStatus());
+            if(transaction.getStatus()){
+                dto.setStatus("In");
+            }else{
+                dto.setStatus("Out");
+            }
             dto.setTotal(transaction.getTotal());
             dto.setAccountId(transaction.getAccount().getId());
             dto.setCategoryName(transaction.getCategory().getName());

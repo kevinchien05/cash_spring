@@ -12,7 +12,7 @@ public class TransactionCategoryDTO {
 
     private String description;
 
-    private Boolean status;
+    private String status;
 
     private BigDecimal total;
 
@@ -44,14 +44,6 @@ public class TransactionCategoryDTO {
         this.description = description;
     }
 
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
-    }
-
     public BigDecimal getTotal() {
         return total;
     }
@@ -74,6 +66,14 @@ public class TransactionCategoryDTO {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
 
