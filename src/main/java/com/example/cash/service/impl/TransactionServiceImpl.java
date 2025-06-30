@@ -88,7 +88,13 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction Not Found"));
         Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category Not Found")); 
         Account account = accountRepository.findById(transaction.getAccount().getId()).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
-        BigDecimal total = account.getBalance().add(transaction.getTotal());
+        // BigDecimal total = account.getBalance().add(transaction.getTotal());
+        BigDecimal total = account.getBalance();
+        if(transaction.getStatus()){
+            total = total.subtract(transaction.getTotal());
+        }else{
+            total = total.add(transaction.getTotal());
+        }
         transaction.setDate(dto.getDate());
         transaction.setDescription(dto.getDescription());
         transaction.setStatus(dto.getStatus());

@@ -62,6 +62,7 @@ public class AccountServiceImpl implements AccountService {
         return "Account is already created";
     }
 
+    @Transactional
     @Override
     public String editAccount(AccountDTO dto, Long id) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
