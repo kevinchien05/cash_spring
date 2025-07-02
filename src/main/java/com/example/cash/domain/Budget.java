@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,7 +27,7 @@ public class Budget implements Serializable {
     private BigDecimal total;
 
     @ManyToOne
-    @JoinColumn(name = "accountId", nullable = false)
+    @JoinColumn(name = "accountId", foreignKey=@ForeignKey(foreignKeyDefinition="FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE SET NULL"))
     private Account account;
 
     @ManyToOne
