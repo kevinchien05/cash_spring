@@ -37,25 +37,25 @@ public class TransactionServiceImpl implements TransactionService {
     @Transactional
     @Override
     public List<TransactionCategoryDTO> getAllTransaction(Long accountID, Date start, Date end, String search) {
-        start = ObjectUtils.isEmpty(start)?null:start;
-        end = ObjectUtils.isEmpty(end)?null:end;
-        search = ObjectUtils.isEmpty(search)?"%":"%"+search+"%";
+        start = ObjectUtils.isEmpty(start) ? null : start;
+        end = ObjectUtils.isEmpty(end) ? null : end;
+        search = ObjectUtils.isEmpty(search) ? "%" : "%" + search + "%";
         List<Transaction> transactions = transactionRepository.findAllByAccountIdAndDateRangeAndDescription(accountID, start, end, search);
         return transactions.stream().map(transaction -> {
             TransactionCategoryDTO dto = new TransactionCategoryDTO();
             dto.setId(transaction.getId());
             dto.setDate(transaction.getDate());
             dto.setDescription(transaction.getDescription());
-            if(transaction.getStatus()){
+            if (transaction.getStatus()) {
                 dto.setStatus("In");
-            }else{
+            } else {
                 dto.setStatus("Out");
             }
             dto.setTotal(transaction.getTotal());
             dto.setAccountId(transaction.getAccount().getId());
             dto.setCategoryName(transaction.getCategory().getName());
             return dto;
-        }).collect(Collectors.toList()); 
+        }).collect(Collectors.toList());
     }
 
     @Transactional
@@ -63,7 +63,7 @@ public class TransactionServiceImpl implements TransactionService {
     public String addNewTransaction(TransactionDTO dto, Long accountId) {
         Transaction transaction = new Transaction();
         Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
-        Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category Not Found")); 
+        Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category Not Found"));
         transaction.setDate(dto.getDate());
         transaction.setDescription(dto.getDescription());
         transaction.setStatus(dto.getStatus());
@@ -73,9 +73,9 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.save(transaction);
         BigDecimal total;
         //true anggap masuk
-        if(dto.getStatus()){
+        if (dto.getStatus()) {
             total = account.getBalance().add(dto.getTotal());
-        }else{
+        } else {
             total = account.getBalance().subtract(dto.getTotal());
         }
         account.setBalance(total);
@@ -86,13 +86,13 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public String editTransaction(Long id, TransactionDTO dto) {
         Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction Not Found"));
-        Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category Not Found")); 
+        Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category Not Found"));
         Account account = accountRepository.findById(transaction.getAccount().getId()).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
         // BigDecimal total = account.getBalance().add(transaction.getTotal());
         BigDecimal total = account.getBalance();
-        if(transaction.getStatus()){
+        if (transaction.getStatus()) {
             total = total.subtract(transaction.getTotal());
-        }else{
+        } else {
             total = total.add(transaction.getTotal());
         }
         transaction.setDate(dto.getDate());
@@ -102,9 +102,9 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setCategory(category);
         transactionRepository.save(transaction);
         //true anggap masuk
-        if(dto.getStatus()){
+        if (dto.getStatus()) {
             total = total.add(dto.getTotal());
-        }else{
+        } else {
             total = total.subtract(dto.getTotal());
         }
         account.setBalance(total);
@@ -116,18 +116,28 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public String deleteTransaction(Long id) {
         Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction Not Found"));
-        Account account =  accountRepository.findById(transaction.getAccount().getId()).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
+        Account account = accountRepository.findById(transaction.getAccount().getId()).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
         BigDecimal total = account.getBalance();
         //true anggap masuk
-        if(transaction.getStatus()){
+        if (transaction.getStatus()) {
             total = total.subtract(transaction.getTotal());
-        }else{
+        } else {
             total = total.add(transaction.getTotal());
         }
         transactionRepository.delete(transaction);
         account.setBalance(total);
         accountRepository.save(account);
         return "Transaction deleted";
+    }
+
+    @Transactional
+    @Override
+    public BigDecimal getAccountBalance(Long accountID, Date start, Date end, Long categoryID) {
+        start = ObjectUtils.isEmpty(start) ? null : start;
+        end = ObjectUtils.isEmpty(end) ? null : end;
+        List<Transaction> transactions = transactionRepository.findIncomeByAccountIDAndMonthAndCategoryID(accountID, start, end, categoryID);
+        BigDecimal total = transactions.stream().map(Transaction::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return total;
     }
 
 }

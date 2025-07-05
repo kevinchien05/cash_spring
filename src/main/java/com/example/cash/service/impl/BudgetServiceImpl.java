@@ -1,5 +1,6 @@
 package com.example.cash.service.impl;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.example.cash.domain.Account;
 import com.example.cash.domain.Budget;
 import com.example.cash.domain.Category;
+import com.example.cash.dto.BudgetCategoryDTO;
 import com.example.cash.dto.BudgetDTO;
 import com.example.cash.exception.ResourceNotFoundException;
 import com.example.cash.repository.AccountRepository;
@@ -32,14 +34,15 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Transactional
     @Override
-    public List<BudgetDTO> getAllBudget(Long account_id) {
-        List<Budget> dtos = budgetRepository.findAllByAccount_Id(account_id);
+    public List<BudgetCategoryDTO> getAllBudget(Long account_id, Date start, Date end) {
+        List<Budget> dtos = budgetRepository.findAllByAccount_IdAndDate(account_id,start,end);
         return dtos.stream().map(budget -> {
-            BudgetDTO dto = new BudgetDTO();
+            BudgetCategoryDTO dto = new BudgetCategoryDTO();
             dto.setId(budget.getId());
             dto.setTotal(budget.getTotal());
+            dto.setDate(budget.getDate());
             dto.setAccountId(account_id);
-            dto.setCategoryId(budget.getCategory().getId());
+            dto.setCategoryName(budget.getCategory().getName());
             return dto;
         }).collect(Collectors.toList());
     }
@@ -50,6 +53,7 @@ public class BudgetServiceImpl implements BudgetService {
         Account account = accountRepository.findById(account_id).orElseThrow(() -> new ResourceNotFoundException("account not found"));
         Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("category not found")); 
         budget.setTotal(dto.getTotal());
+        budget.setDate(dto.getDate());
         budget.setAccount(account);
         budget.setCategory(category);
         budgetRepository.save(budget);

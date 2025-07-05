@@ -1,5 +1,6 @@
 package com.example.cash.web;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Date;
@@ -22,7 +23,6 @@ import com.example.cash.dto.TransactionCategoryDTO;
 import com.example.cash.dto.TransactionDTO;
 import com.example.cash.service.TransactionService;
 
-
 @RestController
 @RequestMapping("/api")
 public class TransactionResource {
@@ -43,7 +43,7 @@ public class TransactionResource {
     }
 
     @DeleteMapping("delete/transaction/{id}")
-    public ResponseEntity<Void> deleteTransaction(@PathVariable Long id){
+    public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
         transactionService.deleteTransaction(id);
         return ResponseEntity.ok().build();
     }
@@ -61,13 +61,13 @@ public class TransactionResource {
         SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
         if (start != null && !start.isEmpty()) {
             startDate = Date.valueOf(start); // must be in yyyy-MM-dd
-        }else{
+        } else {
             String today = ft.format(todayDate);
             startDate = Date.valueOf(today);
         }
         if (end != null && !end.isEmpty()) {
             endDate = Date.valueOf(end);
-        }else{
+        } else {
             String today = ft.format(todayDate);
             endDate = Date.valueOf(today);
         }
@@ -75,4 +75,28 @@ public class TransactionResource {
         List<TransactionCategoryDTO> dtos = transactionService.getAllTransaction(id, startDate, endDate, search);
         return ResponseEntity.ok(dtos);
     }
+
+    @GetMapping("/transaction/income")
+    public ResponseEntity<BigDecimal> getIncome(@RequestParam(value = "id") Long id, @RequestParam(value = "start", required = false) String start, @RequestParam(value = "end", required = false) String end, @RequestParam(value = "category") Long category) {
+        Date startDate = null;
+        Date endDate = null;
+        Date todayDate = new Date(System.currentTimeMillis());
+        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+        if (start != null && !start.isEmpty()) {
+            startDate = Date.valueOf(start); // must be in yyyy-MM-dd
+        } else {
+            String today = ft.format(todayDate);
+            startDate = Date.valueOf(today);
+        }
+        if (end != null && !end.isEmpty()) {
+            endDate = Date.valueOf(end);
+        } else {
+            String today = ft.format(todayDate);
+            endDate = Date.valueOf(today);
+        }
+        
+        BigDecimal total = transactionService.getAccountBalance(id, startDate, endDate, category);
+        return ResponseEntity.ok(total);
+    }
+
 }

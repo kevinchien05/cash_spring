@@ -1,6 +1,7 @@
 package com.example.cash.service;
 
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
 
@@ -16,4 +17,6 @@ public interface TransactionService {
     public String editTransaction(Long id, TransactionDTO dto);
 
     public String deleteTransaction(Long id);
+
+    public BigDecimal getAccountBalance(Long accountID, Date start, Date end, Long categoryID);
 }

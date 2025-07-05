@@ -3,14 +3,14 @@ package com.example.cash.dto;
 import java.math.BigDecimal;
 import java.sql.Date;
 
-public class BudgetDTO {
+public class BudgetCategoryDTO {
     private Long id;
 
     private BigDecimal total;
 
     private Long accountId;
 
-    private Long categoryId;
+    private String categoryName;
 
     private Date date;
 
@@ -37,21 +37,21 @@ public class BudgetDTO {
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
     }
-
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
+    
     public Date getDate() {
         return date;
     }
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
     

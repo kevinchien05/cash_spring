@@ -2,6 +2,7 @@ package com.example.cash.domain;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,6 +35,9 @@ public class Budget implements Serializable {
     @JoinColumn(name = "categoryId", nullable = false)
     private Category category;
 
+    @Column(name="date", nullable=false)
+    private Date date;
+
     public Long getId() {
         return id;
     }
@@ -64,6 +68,14 @@ public class Budget implements Serializable {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
 }
