@@ -10,6 +10,8 @@ public class BudgetCategoryDTO {
 
     private Long accountId;
 
+    private Long categoryId;
+
     private String categoryName;
 
     private Date date;
@@ -52,6 +54,14 @@ public class BudgetCategoryDTO {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     

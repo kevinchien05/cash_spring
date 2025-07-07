@@ -14,6 +14,7 @@ import com.example.cash.domain.Category;
 import com.example.cash.domain.Transaction;
 import com.example.cash.dto.TransactionCategoryDTO;
 import com.example.cash.dto.TransactionDTO;
+import com.example.cash.dto.TransactionSumDTO;
 import com.example.cash.exception.ResourceNotFoundException;
 import com.example.cash.repository.AccountRepository;
 import com.example.cash.repository.CategoryRepository;
@@ -138,6 +139,12 @@ public class TransactionServiceImpl implements TransactionService {
         List<Transaction> transactions = transactionRepository.findIncomeByAccountIDAndMonthAndCategoryID(accountID, start, end, categoryID);
         BigDecimal total = transactions.stream().map(Transaction::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
         return total;
+    }
+
+    @Override
+    public List<TransactionSumDTO> getTransactionSumByCategory(Long accountID, Date start, Date end) {
+        List<TransactionSumDTO> transactions = transactionRepository.findTransactionSumGroupByCategory(accountID, start, end);
+        return transactions;
     }
 
 }

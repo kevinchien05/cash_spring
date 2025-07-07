@@ -75,6 +75,4 @@ public class TransactionCategoryDTO {
     public void setStatus(String status) {
         this.status = status;
     }
-
-
 }

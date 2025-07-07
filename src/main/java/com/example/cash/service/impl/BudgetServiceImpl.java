@@ -42,6 +42,7 @@ public class BudgetServiceImpl implements BudgetService {
             dto.setTotal(budget.getTotal());
             dto.setDate(budget.getDate());
             dto.setAccountId(account_id);
+            dto.setCategoryId(budget.getCategory().getId());
             dto.setCategoryName(budget.getCategory().getName());
             return dto;
         }).collect(Collectors.toList());
