@@ -7,6 +7,8 @@ import java.util.List;
 
 import com.example.cash.dto.TransactionCategoryDTO;
 import com.example.cash.dto.TransactionDTO;
+import com.example.cash.dto.TransactionDateDTO;
+import com.example.cash.dto.TransactionJoinCategoryDTO;
 import com.example.cash.dto.TransactionSumDTO;
 
 public interface TransactionService {
@@ -21,5 +23,11 @@ public interface TransactionService {
 
     public BigDecimal getAccountBalance(Long accountID, Date start, Date end, Long categoryID);
 
+    public BigDecimal getAccountOutcome (Long accountID, Date start, Date end);
+
     public List<TransactionSumDTO> getTransactionSumByCategory(Long accountID, Date start, Date end);
+
+    public List<TransactionDateDTO> getTransactionGroupByDate(Long accountID, Date start, Date end, Boolean status);
+
+    public List<TransactionJoinCategoryDTO> getTransactionCategoryName(Long accountID, Date start, Date end);
 }

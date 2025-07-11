@@ -14,6 +14,8 @@ import com.example.cash.domain.Category;
 import com.example.cash.domain.Transaction;
 import com.example.cash.dto.TransactionCategoryDTO;
 import com.example.cash.dto.TransactionDTO;
+import com.example.cash.dto.TransactionDateDTO;
+import com.example.cash.dto.TransactionJoinCategoryDTO;
 import com.example.cash.dto.TransactionSumDTO;
 import com.example.cash.exception.ResourceNotFoundException;
 import com.example.cash.repository.AccountRepository;
@@ -144,6 +146,30 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<TransactionSumDTO> getTransactionSumByCategory(Long accountID, Date start, Date end) {
         List<TransactionSumDTO> transactions = transactionRepository.findTransactionSumGroupByCategory(accountID, start, end);
+        return transactions;
+    }
+
+    @Transactional
+    @Override
+    public BigDecimal getAccountOutcome(Long accountID, Date start, Date end) {
+        start = ObjectUtils.isEmpty(start) ? null : start;
+        end = ObjectUtils.isEmpty(end) ? null : end;
+        List<Transaction> transactions = transactionRepository.findOutcomeByAccountIDAndMonth(accountID, start, end);
+        BigDecimal total = transactions.stream().map(Transaction::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return total;
+    }
+
+    @Transactional
+    @Override
+    public List<TransactionDateDTO> getTransactionGroupByDate(Long accountID, Date start, Date end, Boolean status) {
+        List<TransactionDateDTO> transactions = transactionRepository.findTransactionGroupByDate(accountID, start, end, status);
+        return transactions;
+    }
+
+    @Transactional
+    @Override
+    public List<TransactionJoinCategoryDTO> getTransactionCategoryName(Long accountID, Date start, Date end) {
+        List<TransactionJoinCategoryDTO> transactions = transactionRepository.findTransactionJoinCategory(accountID, start, end);
         return transactions;
     }
 

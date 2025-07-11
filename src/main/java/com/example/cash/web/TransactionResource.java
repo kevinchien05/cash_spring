@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cash.dto.TransactionCategoryDTO;
 import com.example.cash.dto.TransactionDTO;
+import com.example.cash.dto.TransactionDateDTO;
+import com.example.cash.dto.TransactionJoinCategoryDTO;
 import com.example.cash.dto.TransactionSumDTO;
 import com.example.cash.service.TransactionService;
 
@@ -121,5 +123,98 @@ public class TransactionResource {
         List<TransactionSumDTO> transactions = transactionService.getTransactionSumByCategory(id, startDate, endDate);
         return ResponseEntity.ok(transactions);
     }
+
+    @GetMapping("/transaction/outcome")
+    public ResponseEntity<BigDecimal> getAccountOutcome(@RequestParam(value = "id") Long id, @RequestParam(value = "start", required = false) String start, @RequestParam(value = "end", required = false) String end) {
+        Date startDate = null;
+        Date endDate = null;
+        Date todayDate = new Date(System.currentTimeMillis());
+        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+        if (start != null && !start.isEmpty()) {
+            startDate = Date.valueOf(start); // must be in yyyy-MM-dd
+        } else {
+            String today = ft.format(todayDate);
+            startDate = Date.valueOf(today);
+        }
+        if (end != null && !end.isEmpty()) {
+            endDate = Date.valueOf(end);
+        } else {
+            String today = ft.format(todayDate);
+            endDate = Date.valueOf(today);
+        }
+
+        BigDecimal total = transactionService.getAccountOutcome(id, startDate, endDate);
+        return ResponseEntity.ok(total);
+    }
+
+    @GetMapping("/transaction/income/date")
+    public ResponseEntity<List<TransactionDateDTO>> getIncomeGroupByDate(@RequestParam(value = "id") Long id, @RequestParam(value = "start", required = false) String start, @RequestParam(value = "end", required = false) String end) {
+        Date startDate = null;
+        Date endDate = null;
+        Date todayDate = new Date(System.currentTimeMillis());
+        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+        if (start != null && !start.isEmpty()) {
+            startDate = Date.valueOf(start); // must be in yyyy-MM-dd
+        } else {
+            String today = ft.format(todayDate);
+            startDate = Date.valueOf(today);
+        }
+        if (end != null && !end.isEmpty()) {
+            endDate = Date.valueOf(end);
+        } else {
+            String today = ft.format(todayDate);
+            endDate = Date.valueOf(today);
+        }
+
+        List<TransactionDateDTO> dtos = transactionService.getTransactionGroupByDate(id, startDate, endDate, true);
+        return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping("/transaction/outcome/date")
+    public ResponseEntity<List<TransactionDateDTO>> getOutcomeGroupByDate(@RequestParam(value = "id") Long id, @RequestParam(value = "start", required = false) String start, @RequestParam(value = "end", required = false) String end) {
+        Date startDate = null;
+        Date endDate = null;
+        Date todayDate = new Date(System.currentTimeMillis());
+        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+        if (start != null && !start.isEmpty()) {
+            startDate = Date.valueOf(start); // must be in yyyy-MM-dd
+        } else {
+            String today = ft.format(todayDate);
+            startDate = Date.valueOf(today);
+        }
+        if (end != null && !end.isEmpty()) {
+            endDate = Date.valueOf(end);
+        } else {
+            String today = ft.format(todayDate);
+            endDate = Date.valueOf(today);
+        }
+
+        List<TransactionDateDTO> dtos = transactionService.getTransactionGroupByDate(id, startDate, endDate, false);
+        return ResponseEntity.ok(dtos);
+    }
+    
+    @GetMapping("/transaction/outcome/group")
+    public ResponseEntity<List<TransactionJoinCategoryDTO>> getTransactionGroupByCategory(@RequestParam(value = "id") Long id, @RequestParam(value = "start", required = false) String start, @RequestParam(value = "end", required = false) String end) {
+        Date startDate = null;
+        Date endDate = null;
+        Date todayDate = new Date(System.currentTimeMillis());
+        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+        if (start != null && !start.isEmpty()) {
+            startDate = Date.valueOf(start); // must be in yyyy-MM-dd
+        } else {
+            String today = ft.format(todayDate);
+            startDate = Date.valueOf(today);
+        }
+        if (end != null && !end.isEmpty()) {
+            endDate = Date.valueOf(end);
+        } else {
+            String today = ft.format(todayDate);
+            endDate = Date.valueOf(today);
+        }
+
+        List<TransactionJoinCategoryDTO> dtos = transactionService.getTransactionCategoryName(id, startDate, endDate);
+        return ResponseEntity.ok(dtos);
+    }
+    
 
 }
