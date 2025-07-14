@@ -25,6 +25,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     public static final String SELECT_FROM_TRANSACTION_JOIN_CATEGORY = "SELECT category.id AS categoryId, category.name AS categoryName, SUM(transaction.total) AS total FROM transaction JOIN category on transaction.category_id = category.id WHERE transaction.account_id = :accountId AND DATE(transaction.date) BETWEEN :start AND :end AND status = false GROUP BY category.id";
 
+    public static final String SELECT_FROM_TRANSACTION_JOIN_CATEGORY_LIMIT_ONE = "SELECT category.id AS categoryId, category.name AS categoryName, SUM(transaction.total) AS total FROM transaction JOIN category on transaction.category_id = category.id WHERE transaction.account_id = :accountId AND DATE(transaction.date) BETWEEN :start AND :end AND status = false GROUP BY category.id ORDER BY SUM(transaction.total) DESC LIMIT 1";
+
     List<Transaction> findAllByAccount_IdAndDateAndDescription(Long accountId, Date date, String description);
 
     @Query(value = SELECT_FROM_TRANSACTION_WHERE_ACCOUNT_ID_ACCOUNT_ID_AND_DATE_DATE_BETWEEN_START_AND_END_AND_DESCRIPTION_ILIKE_DESCRIPTION, nativeQuery = true)
@@ -44,4 +46,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query(value = SELECT_FROM_TRANSACTION_JOIN_CATEGORY, nativeQuery = true)
     List<TransactionJoinCategoryDTO> findTransactionJoinCategory(Long accountId, Date start, Date end);
+    
+    @Query(value = SELECT_FROM_TRANSACTION_JOIN_CATEGORY_LIMIT_ONE, nativeQuery = true)
+    List<TransactionJoinCategoryDTO> findTransactionJoinCategoryLimitOne(Long accountId, Date start, Date end);
 }

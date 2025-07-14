@@ -215,6 +215,29 @@ public class TransactionResource {
         List<TransactionJoinCategoryDTO> dtos = transactionService.getTransactionCategoryName(id, startDate, endDate);
         return ResponseEntity.ok(dtos);
     }
+
+    @GetMapping("/transaction/outcome/limit")
+    public ResponseEntity<List<TransactionJoinCategoryDTO>> getTransactionGroupByCategoryLimitOne(@RequestParam(value = "id") Long id, @RequestParam(value = "start", required = false) String start, @RequestParam(value = "end", required = false) String end) {
+        Date startDate = null;
+        Date endDate = null;
+        Date todayDate = new Date(System.currentTimeMillis());
+        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+        if (start != null && !start.isEmpty()) {
+            startDate = Date.valueOf(start); // must be in yyyy-MM-dd
+        } else {
+            String today = ft.format(todayDate);
+            startDate = Date.valueOf(today);
+        }
+        if (end != null && !end.isEmpty()) {
+            endDate = Date.valueOf(end);
+        } else {
+            String today = ft.format(todayDate);
+            endDate = Date.valueOf(today);
+        }
+
+        List<TransactionJoinCategoryDTO> dtos = transactionService.getTransactionCategoryNameLimitOne(id, startDate, endDate);
+        return ResponseEntity.ok(dtos);
+    }
     
 
 }

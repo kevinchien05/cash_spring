@@ -30,4 +30,6 @@ public interface TransactionService {
     public List<TransactionDateDTO> getTransactionGroupByDate(Long accountID, Date start, Date end, Boolean status);
 
     public List<TransactionJoinCategoryDTO> getTransactionCategoryName(Long accountID, Date start, Date end);
+
+    public List<TransactionJoinCategoryDTO> getTransactionCategoryNameLimitOne(Long accountID, Date start, Date end);
 }

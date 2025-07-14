@@ -173,4 +173,10 @@ public class TransactionServiceImpl implements TransactionService {
         return transactions;
     }
 
+    @Override
+    public List<TransactionJoinCategoryDTO> getTransactionCategoryNameLimitOne(Long accountID, Date start, Date end) {
+        List<TransactionJoinCategoryDTO> transactions = transactionRepository.findTransactionJoinCategoryLimitOne(accountID, start, end);
+        return transactions;
+    }
+
 }
