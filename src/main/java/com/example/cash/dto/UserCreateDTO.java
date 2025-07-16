@@ -10,6 +10,8 @@ public class UserCreateDTO {
 
     private String role="public";
 
+    private Boolean rememberMe;
+
     public String getUsername() {
         return username;
     }
@@ -40,6 +42,14 @@ public class UserCreateDTO {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Boolean getRememberMe() {
+        return rememberMe;
+    }
+
+    public void setRememberMe(Boolean rememberMe) {
+        this.rememberMe = rememberMe;
     }
 
 }
