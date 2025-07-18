@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.cash.domain.User;
 import com.example.cash.dto.UserCreateDTO;
+import com.example.cash.exception.ResourceNotFoundException;
 import com.example.cash.repository.UserRepository;
 import com.example.cash.service.UserService;
 
@@ -82,5 +83,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             return dto;
         }).collect(Collectors.toList());
     }
+
+    @Override
+    public String updateUserInfo(Long id, UserCreateDTO dto) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
+        List<User> users = userRepository.findAll();
+        Boolean containsUsername = users.stream().anyMatch(userName -> userName.getUsername().equalsIgnoreCase(dto.getUsername()));
+        Boolean containsEmail = users.stream().anyMatch(userEmail -> userEmail.getEmail().equalsIgnoreCase(dto.getEmail()));
+        if(!"".equals(dto.getUsername()) && !containsUsername){
+            user.setUsername(dto.getUsername());
+        }
+        if(!"".equals(dto.getEmail()) && !containsEmail){
+            user.setEmail(dto.getEmail());
+        }
+        userRepository.save(user);
+        return "Update Success";
+    }
+
 
 }

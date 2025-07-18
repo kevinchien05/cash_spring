@@ -12,4 +12,6 @@ public interface UserService {
     public void updateUser(String email, UserCreateDTO dto);
 
     public List<UserCreateDTO> findAllUser();
+
+    public String updateUserInfo(Long id, UserCreateDTO dto);
 }

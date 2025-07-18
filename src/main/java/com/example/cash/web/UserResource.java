@@ -11,16 +11,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cash.dto.UserCreateDTO;
 import com.example.cash.service.UserService;
 
-
-
-
 @RestController
+@RequestMapping("/api")
 public class UserResource {
 
     @Autowired
@@ -51,5 +50,10 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
     
+    @PutMapping("/update/user/info/{id}")
+    public ResponseEntity<Void> updateUserInfo(@PathVariable Long id, @RequestBody UserCreateDTO dto) {
+        userService.updateUserInfo(id, dto);
+        return ResponseEntity.ok().build();
+    }
     
 }

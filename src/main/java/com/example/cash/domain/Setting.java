@@ -10,7 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -27,10 +26,6 @@ public class Setting implements Serializable {
     @Column(name = "dark", nullable = false)
     @ColumnDefault("FALSE")
     private Boolean dark;
-
-    @ManyToOne
-    @JoinColumn(name = "currencyId", nullable = false)
-    private Currency currency;
 
     @OneToOne
     @JoinColumn(name = "userId", nullable = false)
@@ -50,14 +45,6 @@ public class Setting implements Serializable {
 
     public void setDark(Boolean dark) {
         this.dark = dark;
-    }
-
-    public Currency getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(Currency currency) {
-        this.currency = currency;
     }
 
     public User getUser() {
