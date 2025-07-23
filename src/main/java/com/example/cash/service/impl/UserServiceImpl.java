@@ -1,16 +1,22 @@
 package com.example.cash.service.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.cash.domain.User;
 import com.example.cash.dto.UserCreateDTO;
@@ -23,16 +29,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
-    
+
     @Autowired
     @Lazy
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Value("${app.upload.dir}")
+    private String uploadDir;
+
     @Override
     public String createNewUser(UserCreateDTO dto) {
-        if(userRepository.findByEmail(dto.getEmail().toLowerCase()) != null){
+        if (userRepository.findByEmail(dto.getEmail().toLowerCase()) != null) {
             return "Email already used";
-        }else if (userRepository.findByUsername(dto.getUsername().toLowerCase()) != null){
+        } else if (userRepository.findByUsername(dto.getUsername().toLowerCase()) != null) {
             return "Username already used";
         }
         User user = new User();
@@ -90,15 +99,92 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         List<User> users = userRepository.findAll();
         Boolean containsUsername = users.stream().anyMatch(userName -> userName.getUsername().equalsIgnoreCase(dto.getUsername()));
         Boolean containsEmail = users.stream().anyMatch(userEmail -> userEmail.getEmail().equalsIgnoreCase(dto.getEmail()));
-        if(!"".equals(dto.getUsername()) && !containsUsername){
+        if (!"".equals(dto.getUsername()) && !containsUsername) {
             user.setUsername(dto.getUsername());
         }
-        if(!"".equals(dto.getEmail()) && !containsEmail){
+        if (!"".equals(dto.getEmail()) && !containsEmail) {
             user.setEmail(dto.getEmail());
         }
         userRepository.save(user);
         return "Update Success";
     }
 
+    @Override
+    public String addNewProfile(Long id, MultipartFile pic) {
+        try {
+            // 1. Get original filename
+            String originalFileName = pic.getOriginalFilename();
+            String extension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+            String hashedFileName = hashFileName(originalFileName + System.currentTimeMillis()) + extension;
+
+            // ✅ 2. Save to absolute path (outside of Tomcat's working directory)
+            String uploadFolder = System.getProperty("user.dir") + File.separator + "profile";  // points to your project root
+            File dir = new File(uploadFolder);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            File dest = new File(uploadFolder + File.separator + hashedFileName);
+            pic.transferTo(dest); // ✅ WILL WORK HERE
+
+            // 3. Update user
+            User user = userRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
+            user.setImage(hashedFileName);
+            userRepository.save(user);
+
+            return "Success";
+        } catch (IOException e) {
+            e.printStackTrace(); // Add for debugging
+            throw new RuntimeException("File upload failed", e);
+        }
+    }
+
+    @Override
+    public String editProfile(Long id, MultipartFile pic) {
+        try {
+            User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            String uploadFolder = System.getProperty("user.dir") + File.separator + "profile";  // points to your project root
+            File file = new File(uploadFolder + File.separator + user.getImage());
+
+            if (file.exists()) {
+                file.delete();
+            }
+
+            String originalFileName = pic.getOriginalFilename();
+            String extension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+            String hashedFileName = hashFileName(originalFileName + System.currentTimeMillis()) + extension;
+
+            File dir = new File(uploadFolder);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            File dest = new File(uploadFolder + File.separator + hashedFileName);
+            pic.transferTo(dest); // ✅ WILL WORK HERE
+
+            user.setImage(hashedFileName);
+            userRepository.save(user);
+
+            return "Success";
+        } catch (IOException e) {
+            e.printStackTrace(); // Add for debugging
+            throw new RuntimeException("File upload failed", e);
+        }
+    }
+
+    private String hashFileName(String input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] digest = md.digest(input.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("MD5 algorithm not available", e);
+        }
+    }
 
 }

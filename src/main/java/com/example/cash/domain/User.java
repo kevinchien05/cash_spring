@@ -32,6 +32,9 @@ public class User implements Serializable {
     @Column(name = "role", nullable = false, columnDefinition = "varchar(255) default 'public'")
     private String role;
 
+    @Column(name = "image")
+    private String image;
+
     public Long getId() {
         return id;
     }
@@ -70,5 +73,13 @@ public class User implements Serializable {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

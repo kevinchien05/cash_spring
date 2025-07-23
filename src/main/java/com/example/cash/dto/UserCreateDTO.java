@@ -10,6 +10,8 @@ public class UserCreateDTO {
 
     private String role="public";
 
+    private String image;
+
     private Boolean rememberMe;
 
     public String getUsername() {
@@ -50,6 +52,14 @@ public class UserCreateDTO {
 
     public void setRememberMe(Boolean rememberMe) {
         this.rememberMe = rememberMe;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
 }

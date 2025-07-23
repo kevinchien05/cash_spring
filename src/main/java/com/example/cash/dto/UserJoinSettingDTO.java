@@ -11,5 +11,7 @@ public interface UserJoinSettingDTO {
 
     String getUsername();
 
+    String getImage();
+
     Boolean getDark();
 }
