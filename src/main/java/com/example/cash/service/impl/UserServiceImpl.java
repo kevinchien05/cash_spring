@@ -19,9 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.cash.domain.User;
+import com.example.cash.dto.SettingDTO;
 import com.example.cash.dto.UserCreateDTO;
 import com.example.cash.exception.ResourceNotFoundException;
 import com.example.cash.repository.UserRepository;
+import com.example.cash.service.SettingService;
 import com.example.cash.service.UserService;
 
 @Service
@@ -37,6 +39,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Value("${app.upload.dir}")
     private String uploadDir;
 
+    @Autowired
+    private SettingService settingService;
+
     @Override
     public String createNewUser(UserCreateDTO dto) {
         if (userRepository.findByEmail(dto.getEmail().toLowerCase()) != null) {
@@ -50,6 +55,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(dto.getRole());
         userRepository.save(user);
+        SettingDTO setting = new SettingDTO();
+        setting.setDark(false);
+        settingService.addSetting(user.getId(), setting);
         return "User Created";
     }
 
