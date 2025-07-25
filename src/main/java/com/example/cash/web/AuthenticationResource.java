@@ -43,8 +43,12 @@ public class AuthenticationResource {
     }
 
     @PostMapping("/forget/email")
-    public ResponseEntity<UserCreateDTO> findEmail(@RequestBody UserCreateDTO dto) {
+    public ResponseEntity<?> findEmail(@RequestBody UserCreateDTO dto) {
         UserCreateDTO dtoUser = userService.findByEmail(dto.getEmail().toLowerCase());
+        if (dtoUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Email not found");
+        }
         return ResponseEntity.ok(dtoUser);
     }
 

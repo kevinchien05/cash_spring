@@ -45,6 +45,13 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                })
+                )
                 .formLogin(form -> form
                 .loginProcessingUrl("/auth/login") // Frontend will POST here
                 .successHandler((request, response, authentication) -> {
