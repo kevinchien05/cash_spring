@@ -13,7 +13,7 @@ import com.example.cash.dto.TransactionSumDTO;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    public static final String SELECT_FROM_TRANSACTION_WHERE_ACCOUNT_ID_ACCOUNT_ID_AND_DATE_DATE_BETWEEN_START_AND_END_AND_DESCRIPTION_ILIKE_DESCRIPTION = "SELECT * FROM transaction WHERE account_id = :accountId AND DATE(date) BETWEEN :start AND :end AND description ILIKE %:description%";
+    public static final String SELECT_FROM_TRANSACTION_WHERE_ACCOUNT_ID_ACCOUNT_ID_AND_DATE_DATE_BETWEEN_START_AND_END_AND_DESCRIPTION_ILIKE_DESCRIPTION = "SELECT * FROM transaction WHERE account_id = :accountId AND DATE(date) BETWEEN :start AND :end AND description ILIKE %:description% ORDER BY date ASC";
 
     public static final String SELECT_FROM_TRANSACTION_BALANCE = "SELECT * FROM transaction WHERE account_id = :accountId AND DATE(date) BETWEEN :start AND :end AND category_id = :categoryId AND status = true";
 
@@ -21,7 +21,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     public static final String SELECT_FROM_TRANSACTION_GROUP_BY_CATEGORY = "SELECT category_id AS categoryId, SUM(total) AS total FROM transaction WHERE account_id = :accountId AND DATE(date) BETWEEN :start AND :end AND status = false GROUP BY category_id";
 
-    public static final String SELECT_FROM_TRANSACTION_GROUP_BY_DATE = "SELECT date, SUM(total) AS total FROM transaction WHERE account_id = :accountId AND DATE(date) BETWEEN :start AND :end AND status = :status GROUP BY date";
+    public static final String SELECT_FROM_TRANSACTION_GROUP_BY_DATE = "SELECT date, SUM(total) AS total FROM transaction WHERE account_id = :accountId AND DATE(date) BETWEEN :start AND :end AND status = :status GROUP BY date ORDER BY date ASC";
 
     public static final String SELECT_FROM_TRANSACTION_JOIN_CATEGORY = "SELECT category.id AS categoryId, category.name AS categoryName, SUM(transaction.total) AS total FROM transaction JOIN category on transaction.category_id = category.id WHERE transaction.account_id = :accountId AND DATE(transaction.date) BETWEEN :start AND :end AND status = false GROUP BY category.id";
 
