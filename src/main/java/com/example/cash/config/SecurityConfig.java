@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -61,7 +63,15 @@ public class SecurityConfig {
                 })
                 .failureHandler((request, response, exception) -> {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("Login failed");
+                    response.setContentType("application/json");
+
+                    if (exception instanceof DisabledException) {
+                        response.getWriter().write("{\"error\": \"Please verify your email before logging in.\"}");
+                    } else if (exception instanceof BadCredentialsException) {
+                        response.getWriter().write("{\"error\": \"Invalid email or password.\"}");
+                    } else {
+                        response.getWriter().write("{\"error\": \"" + exception.getMessage() + "\"}");
+                    }
                 })
                 )
                 .logout(logout -> logout

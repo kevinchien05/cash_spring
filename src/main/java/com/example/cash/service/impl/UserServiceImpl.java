@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,9 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,7 +27,7 @@ import com.example.cash.service.SettingService;
 import com.example.cash.service.UserService;
 
 @Service
-public class UserServiceImpl implements UserService, UserDetailsService {
+public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -101,14 +97,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userRepository.save(user);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.emptyList());
-    }
+    // @Override
+    // public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    //     User user = userRepository.findByEmail(username);
+    //     if (user == null) {
+    //         throw new UsernameNotFoundException("User not found");
+    //     }
+    //     return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.emptyList());
+    // }
 
     @Override
     public List<UserCreateDTO> findAllUser() {
