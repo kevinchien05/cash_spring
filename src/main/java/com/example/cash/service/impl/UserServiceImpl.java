@@ -2,6 +2,8 @@ package com.example.cash.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -48,6 +50,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
+    @Value("${frontend-url}")
+    private String frontendUrl;
+
     @Override
     public UserCreationResult createNewUser(UserCreateDTO dto) {
         if (userRepository.findByEmail(dto.getEmail().toLowerCase()) != null) {
@@ -67,13 +72,6 @@ public class UserServiceImpl implements UserService {
         setting.setDark(false);
         settingService.addSetting(user.getId(), setting);
 
-        // Generate verification token and send email
-        // String token = UUID.randomUUID().toString();
-        // user.setVerificationToken(token);
-        // userRepository.save(user);
-        // String confirmationUrl = "http://localhost:5173/verify-email?token=" + token;
-        // emailService.sendEmail(user.getEmail(), "Email Verification", "Click the link to verify your email: " + confirmationUrl);
-        
         eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user));
 
         return UserCreationResult.success(user);
@@ -105,7 +103,6 @@ public class UserServiceImpl implements UserService {
     //     }
     //     return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.emptyList());
     // }
-
     @Override
     public List<UserCreateDTO> findAllUser() {
         List<User> users = userRepository.findAll();
@@ -224,6 +221,13 @@ public class UserServiceImpl implements UserService {
         user.setVerified(true);
         userRepository.save(user);
         return "valid";
+    }
+
+    @Override
+    public void resetVerification(String email, String txt) {
+        String encodedTxt = URLEncoder.encode(txt, StandardCharsets.UTF_8);
+        String confirmationUrl = frontendUrl + "/forget/password?email=" + encodedTxt;
+        emailService.sendEmail(email, "Email Verification", "Click the link to reset your password: " + confirmationUrl);
     }
 
 }

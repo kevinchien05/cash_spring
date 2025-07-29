@@ -3,6 +3,7 @@ package com.example.cash.event;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,9 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
     @Autowired
     private EmailService emailService;
 
+    @Value("${frontend-url}")
+    private String frontendUrl;
+
     @Override
     public void onApplicationEvent(OnRegistrationCompleteEvent event) {
         this.confirmRegistration(event);
@@ -31,7 +35,7 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
 
         String recipientAddress = user.getEmail();
         String subject = "Email Verification";
-        String confirmationUrl = "http://localhost:5173/verify-email?token=" + token;
+        String confirmationUrl = frontendUrl + "/verify-email?token=" + token;
         String message = "Click the link to verify your email: " + confirmationUrl;
 
         emailService.sendEmail(recipientAddress, subject, message);

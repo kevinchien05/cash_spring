@@ -91,4 +91,10 @@ public class AuthenticationResource {
         return ResponseEntity.ok(user); // or return UserDTO
     }
 
+    @GetMapping("/reset/password")
+    public ResponseEntity<?> resetVerification(@RequestParam String email, @RequestParam String token) {
+        userService.resetVerification(email, token);
+        return ResponseEntity.ok("Success");
+    }
+    
 }
