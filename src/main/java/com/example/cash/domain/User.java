@@ -35,6 +35,12 @@ public class User implements Serializable {
     @Column(name = "image")
     private String image;
 
+    @Column(name = "verified", nullable = false, columnDefinition="boolean default false")
+    private Boolean verified;
+
+    @Column(name = "verificationToken")
+    private String verificationToken;
+
     public Long getId() {
         return id;
     }
@@ -81,5 +87,21 @@ public class User implements Serializable {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public Boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
     }
 }

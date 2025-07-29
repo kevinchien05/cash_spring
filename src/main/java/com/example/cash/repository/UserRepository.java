@@ -1,5 +1,7 @@
 package com.example.cash.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -13,6 +15,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     public final String SELECT_FROM_USER_JOIN_SETTING = "SELECT u.id, u.email, u.password, u.role, u.username, u.image, s.dark FROM users u JOIN settings s ON s.user_id = u.id WHERE u.email = :email";
 
     User findByEmail(String email);
+
+    Optional<User> findByVerificationToken(String token);
 
     User findByUsername(String username);
 

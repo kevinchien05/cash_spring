@@ -1,20 +1,26 @@
 package com.example.cash.web;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cash.dto.UserCreateDTO;
+import com.example.cash.dto.UserCreationResult;
 import com.example.cash.dto.UserJoinSettingDTO;
 import com.example.cash.repository.UserRepository;
 import com.example.cash.service.UserService;
@@ -29,17 +35,34 @@ public class AuthenticationResource {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    @Lazy
+    private BCryptPasswordEncoder passwordEncoder;
+
     @PostMapping("/register/user")
     public ResponseEntity<String> createNewUser(@RequestBody UserCreateDTO dto) throws URISyntaxException {
-        String result = userService.createNewUser(dto);
-        return switch (result) {
-            case "Username already used", "Email already used" ->
-                ResponseEntity.status(HttpStatus.CONFLICT).body(result);
-            case "User Created" ->
-                ResponseEntity.status(HttpStatus.CREATED).body(result);
-            default ->
-                ResponseEntity.badRequest().body("Unknown error");
-        };
+        UserCreationResult result = userService.createNewUser(dto);
+        if (result.isSuccess()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body("success");
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(result.getErrorMessage());
+        }
+    }
+
+    @GetMapping("/verify-email")
+    public ResponseEntity<Map<String, String>> verifyEmail(@RequestParam("token") String token) {
+        String result = userService.validateVerificationToken(token);
+
+        Map<String, String> response = new HashMap<>();
+        if ("valid".equals(result)) {
+            response.put("status", "success");
+            response.put("message", "Your account has been verified successfully.");
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("status", "error");
+            response.put("message", "Invalid or expired verification token.");
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @PostMapping("/forget/email")

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,8 +22,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.cash.domain.User;
 import com.example.cash.dto.SettingDTO;
 import com.example.cash.dto.UserCreateDTO;
+import com.example.cash.dto.UserCreationResult;
+import com.example.cash.event.OnRegistrationCompleteEvent;
 import com.example.cash.exception.ResourceNotFoundException;
 import com.example.cash.repository.UserRepository;
+import com.example.cash.service.EmailService;
 import com.example.cash.service.SettingService;
 import com.example.cash.service.UserService;
 
@@ -42,23 +46,41 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private SettingService settingService;
 
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
     @Override
-    public String createNewUser(UserCreateDTO dto) {
+    public UserCreationResult createNewUser(UserCreateDTO dto) {
         if (userRepository.findByEmail(dto.getEmail().toLowerCase()) != null) {
-            return "Email already used";
+            return UserCreationResult.error("Email already used");
         } else if (userRepository.findByUsername(dto.getUsername().toLowerCase()) != null) {
-            return "Username already used";
+            return UserCreationResult.error("Username already used");
         }
         User user = new User();
         user.setUsername(dto.getUsername().toLowerCase());
         user.setEmail(dto.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(dto.getRole());
+        user.setVerified(false);
         userRepository.save(user);
+
         SettingDTO setting = new SettingDTO();
         setting.setDark(false);
         settingService.addSetting(user.getId(), setting);
-        return "User Created";
+
+        // Generate verification token and send email
+        // String token = UUID.randomUUID().toString();
+        // user.setVerificationToken(token);
+        // userRepository.save(user);
+        // String confirmationUrl = "http://localhost:5173/verify-email?token=" + token;
+        // emailService.sendEmail(user.getEmail(), "Email Verification", "Click the link to verify your email: " + confirmationUrl);
+        
+        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user));
+
+        return UserCreationResult.success(user);
     }
 
     @Override
@@ -193,6 +215,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("MD5 algorithm not available", e);
         }
+    }
+
+    @Override
+    public String validateVerificationToken(String token) {
+        User user = userRepository.findByVerificationToken(token).orElse(null);
+
+        if (user == null) {
+            return "invalid";
+        }
+
+        user.setVerified(true);
+        userRepository.save(user);
+        return "valid";
     }
 
 }
