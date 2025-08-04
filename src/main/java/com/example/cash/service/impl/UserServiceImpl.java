@@ -95,14 +95,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    // @Override
-    // public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    //     User user = userRepository.findByEmail(username);
-    //     if (user == null) {
-    //         throw new UsernameNotFoundException("User not found");
-    //     }
-    //     return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.emptyList());
-    // }
     @Override
     public List<UserCreateDTO> findAllUser() {
         List<User> users = userRepository.findAll();
@@ -120,13 +112,22 @@ public class UserServiceImpl implements UserService {
     public String updateUserInfo(Long id, UserCreateDTO dto) {
         User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
         List<User> users = userRepository.findAll();
-        Boolean containsUsername = users.stream().anyMatch(userName -> userName.getUsername().equalsIgnoreCase(dto.getUsername()));
-        Boolean containsEmail = users.stream().anyMatch(userEmail -> userEmail.getEmail().equalsIgnoreCase(dto.getEmail()));
-        if (!"".equals(dto.getUsername()) && !containsUsername) {
-            user.setUsername(dto.getUsername());
+        if (!dto.getUsername().equalsIgnoreCase(user.getUsername())) {
+            Boolean containsUsername = users.stream().anyMatch(userName -> userName.getUsername().equalsIgnoreCase(dto.getUsername()));
+            if (!"".equals(dto.getUsername()) && !containsUsername) {
+                user.setUsername(dto.getUsername().toLowerCase());
+            } else {
+                throw new IllegalArgumentException("Username is already taken");
+            }
         }
-        if (!"".equals(dto.getEmail()) && !containsEmail) {
-            user.setEmail(dto.getEmail());
+        if (!dto.getEmail().equalsIgnoreCase(user.getEmail().toLowerCase())) {
+            Boolean containsEmail = users.stream().anyMatch(userEmail -> userEmail.getEmail().equalsIgnoreCase(dto.getEmail()));
+            if (!"".equals(dto.getEmail()) && !containsEmail) {
+                user.setEmail(dto.getEmail());
+            }else{
+                throw new IllegalArgumentException("Email is already taken");
+
+            }
         }
         userRepository.save(user);
         return "Update Success";
