@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,14 +36,22 @@ public class TransactionResource {
 
     @PostMapping("/add/transaction/{id}")
     public ResponseEntity<String> addNewTransaction(@RequestBody TransactionDTO dto, @PathVariable Long id) throws URISyntaxException {
-        transactionService.addNewTransaction(dto, id);
-        return ResponseEntity.created(new URI("/add/transaction")).build();
+        String result = transactionService.addNewTransaction(dto, id);
+        if ("Transaction Created".equals(result)) {
+            return ResponseEntity.created(new URI("/add/transaction")).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
+        }
     }
 
     @PutMapping("edit/transaction/{id}")
-    public ResponseEntity<Void> editTransaction(@PathVariable Long id, @RequestBody TransactionDTO dto) {
-        transactionService.editTransaction(id, dto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> editTransaction(@PathVariable Long id, @RequestBody TransactionDTO dto) {
+        String result = transactionService.editTransaction(id, dto);
+        if ("Transaction Edited".equals(result)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
+        }
     }
 
     @DeleteMapping("delete/transaction/{id}")
@@ -192,7 +201,7 @@ public class TransactionResource {
         List<TransactionDateDTO> dtos = transactionService.getTransactionGroupByDate(id, startDate, endDate, false);
         return ResponseEntity.ok(dtos);
     }
-    
+
     @GetMapping("/transaction/outcome/group")
     public ResponseEntity<List<TransactionJoinCategoryDTO>> getTransactionGroupByCategory(@RequestParam(value = "id") Long id, @RequestParam(value = "start", required = false) String start, @RequestParam(value = "end", required = false) String end) {
         Date startDate = null;
@@ -238,6 +247,5 @@ public class TransactionResource {
         List<TransactionJoinCategoryDTO> dtos = transactionService.getTransactionCategoryNameLimitOne(id, startDate, endDate);
         return ResponseEntity.ok(dtos);
     }
-    
 
 }

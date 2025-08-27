@@ -67,23 +67,27 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = new Transaction();
         Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
         Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category Not Found"));
-        transaction.setDate(dto.getDate());
-        transaction.setDescription(dto.getDescription());
-        transaction.setStatus(dto.getStatus());
-        transaction.setTotal(dto.getTotal());
-        transaction.setAccount(account);
-        transaction.setCategory(category);
-        transactionRepository.save(transaction);
-        BigDecimal total;
-        //true anggap masuk
-        if (dto.getStatus()) {
-            total = account.getBalance().add(dto.getTotal());
-        } else {
-            total = account.getBalance().subtract(dto.getTotal());
+        if(account.getBalance().compareTo(dto.getTotal())>=0){
+            transaction.setDate(dto.getDate());
+            transaction.setDescription(dto.getDescription());
+            transaction.setStatus(dto.getStatus());
+            transaction.setTotal(dto.getTotal());
+            transaction.setAccount(account);
+            transaction.setCategory(category);
+            transactionRepository.save(transaction);
+            BigDecimal total;
+            //true anggap masuk
+            if (dto.getStatus()) {
+                total = account.getBalance().add(dto.getTotal());
+            } else {
+                total = account.getBalance().subtract(dto.getTotal());
+            }
+            account.setBalance(total);
+            accountRepository.save(account);
+            return "Transaction Created";
+        }else{
+            return "Account Balance Is Not Enough";
         }
-        account.setBalance(total);
-        accountRepository.save(account);
-        return "Transaction Created";
     }
 
     @Override
@@ -98,21 +102,24 @@ public class TransactionServiceImpl implements TransactionService {
         } else {
             total = total.add(transaction.getTotal());
         }
-        transaction.setDate(dto.getDate());
-        transaction.setDescription(dto.getDescription());
-        transaction.setStatus(dto.getStatus());
-        transaction.setTotal(dto.getTotal());
-        transaction.setCategory(category);
-        transactionRepository.save(transaction);
-        //true anggap masuk
-        if (dto.getStatus()) {
-            total = total.add(dto.getTotal());
-        } else {
-            total = total.subtract(dto.getTotal());
+        if(total.compareTo(dto.getTotal())>=0){
+            transaction.setDate(dto.getDate());
+            transaction.setDescription(dto.getDescription());
+            transaction.setStatus(dto.getStatus());
+            transaction.setTotal(dto.getTotal());
+            transaction.setCategory(category);
+            transactionRepository.save(transaction);
+            //true anggap masuk
+            if (dto.getStatus()) {
+                total = total.add(dto.getTotal());
+            } else {
+                total = total.subtract(dto.getTotal());
+            }
+            account.setBalance(total);
+            accountRepository.save(account);
+            return "Transaction Edited";
         }
-        account.setBalance(total);
-        accountRepository.save(account);
-        return "Transaction Edited";
+        return "Account Balance Is Not Enough";
     }
 
     //transaksi berhasil dihapus akan tetapi total balance pada account masi belum berubah
