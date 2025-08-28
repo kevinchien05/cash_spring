@@ -67,27 +67,31 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = new Transaction();
         Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
         Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category Not Found"));
-        if(account.getBalance().compareTo(dto.getTotal())>=0){
-            transaction.setDate(dto.getDate());
-            transaction.setDescription(dto.getDescription());
-            transaction.setStatus(dto.getStatus());
-            transaction.setTotal(dto.getTotal());
-            transaction.setAccount(account);
-            transaction.setCategory(category);
-            transactionRepository.save(transaction);
-            BigDecimal total;
-            //true anggap masuk
-            if (dto.getStatus()) {
-                total = account.getBalance().add(dto.getTotal());
-            } else {
-                total = account.getBalance().subtract(dto.getTotal());
-            }
+        transaction.setDate(dto.getDate());
+        transaction.setDescription(dto.getDescription());
+        transaction.setStatus(dto.getStatus());
+        transaction.setTotal(dto.getTotal());
+        transaction.setAccount(account);
+        transaction.setCategory(category);
+        BigDecimal total;
+        //true anggap masuk
+        if (dto.getStatus()) {
+            total = account.getBalance().add(dto.getTotal());
             account.setBalance(total);
+            transactionRepository.save(transaction);
             accountRepository.save(account);
-            return "Transaction Created";
-        }else{
-            return "Account Balance Is Not Enough";
+        } else {
+            if (account.getBalance().compareTo(dto.getTotal()) >= 0) {
+                total = account.getBalance().subtract(dto.getTotal());
+                account.setBalance(total);
+                transactionRepository.save(transaction);
+                accountRepository.save(account);
+            } else {
+                return "Account Balance Is Not Enough";
+            }
         }
+        return "Transaction Created";
+
     }
 
     @Override
@@ -102,24 +106,28 @@ public class TransactionServiceImpl implements TransactionService {
         } else {
             total = total.add(transaction.getTotal());
         }
-        if(total.compareTo(dto.getTotal())>=0){
-            transaction.setDate(dto.getDate());
-            transaction.setDescription(dto.getDescription());
-            transaction.setStatus(dto.getStatus());
-            transaction.setTotal(dto.getTotal());
-            transaction.setCategory(category);
-            transactionRepository.save(transaction);
-            //true anggap masuk
-            if (dto.getStatus()) {
-                total = total.add(dto.getTotal());
-            } else {
-                total = total.subtract(dto.getTotal());
-            }
+        transaction.setDate(dto.getDate());
+        transaction.setDescription(dto.getDescription());
+        transaction.setStatus(dto.getStatus());
+        transaction.setTotal(dto.getTotal());
+        transaction.setCategory(category);
+        //true anggap masuk
+        if (dto.getStatus()) {
+            total = total.add(dto.getTotal());
             account.setBalance(total);
+            transactionRepository.save(transaction);
             accountRepository.save(account);
-            return "Transaction Edited";
+        } else {
+            if (total.compareTo(dto.getTotal()) >= 0) {
+                total = total.subtract(dto.getTotal());
+                account.setBalance(total);
+                transactionRepository.save(transaction);
+                accountRepository.save(account);
+            } else {
+                return "Account Balance Is Not Enough";
+            }
         }
-        return "Account Balance Is Not Enough";
+        return "Transaction Edited";
     }
 
     //transaksi berhasil dihapus akan tetapi total balance pada account masi belum berubah
