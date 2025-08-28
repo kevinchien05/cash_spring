@@ -28,6 +28,8 @@ import com.example.cash.service.EmailService;
 import com.example.cash.service.SettingService;
 import com.example.cash.service.UserService;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -53,6 +55,7 @@ public class UserServiceImpl implements UserService {
     @Value("${frontend-url}")
     private String frontendUrl;
 
+    @Transactional
     @Override
     public UserCreationResult createNewUser(UserCreateDTO dto) {
         if (userRepository.findByEmail(dto.getEmail().toLowerCase()) != null) {
@@ -67,11 +70,11 @@ public class UserServiceImpl implements UserService {
         user.setRole(dto.getRole());
         user.setVerified(false);
         userRepository.save(user);
-
+        
         SettingDTO setting = new SettingDTO();
         setting.setDark(false);
         settingService.addSetting(user.getId(), setting);
-
+        
         eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user));
 
         return UserCreationResult.success(user);
