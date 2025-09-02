@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,20 +20,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.cash.dto.TransactionCategoryDTO;
 import com.example.cash.dto.TransactionDTO;
 import com.example.cash.dto.TransactionDateDTO;
 import com.example.cash.dto.TransactionJoinCategoryDTO;
 import com.example.cash.dto.TransactionSumDTO;
+import com.example.cash.repository.TransactionRepository;
 import com.example.cash.service.TransactionService;
 
 @RestController
 @RequestMapping("/api")
 public class TransactionResource {
 
+    private final TransactionRepository transactionRepository;
+
     @Autowired
     private TransactionService transactionService;
+
+    TransactionResource(TransactionRepository transactionRepository) {
+        this.transactionRepository = transactionRepository;
+    }
 
     @PostMapping("/add/transaction/{id}")
     public ResponseEntity<String> addNewTransaction(@RequestBody TransactionDTO dto, @PathVariable Long id) throws URISyntaxException {
@@ -246,6 +255,20 @@ public class TransactionResource {
 
         List<TransactionJoinCategoryDTO> dtos = transactionService.getTransactionCategoryNameLimitOne(id, startDate, endDate);
         return ResponseEntity.ok(dtos);
+    }
+
+    @PostMapping(value = "/transaction/csv/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> importTransactionCSV(@RequestParam MultipartFile file, @PathVariable Long id, @RequestParam Boolean count) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("Please upload a valid CSV file.");
+        }
+
+        try {
+            transactionService.importTransactionCSV(file, id, count);
+            return ResponseEntity.ok("CSV imported successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+        }
     }
 
 }

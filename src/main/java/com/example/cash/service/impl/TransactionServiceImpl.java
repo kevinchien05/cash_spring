@@ -1,17 +1,22 @@
 package com.example.cash.service.impl;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.cash.domain.Account;
 import com.example.cash.domain.Category;
 import com.example.cash.domain.Transaction;
+import com.example.cash.dto.TransactionCSV;
 import com.example.cash.dto.TransactionCategoryDTO;
 import com.example.cash.dto.TransactionDTO;
 import com.example.cash.dto.TransactionDateDTO;
@@ -22,6 +27,9 @@ import com.example.cash.repository.AccountRepository;
 import com.example.cash.repository.CategoryRepository;
 import com.example.cash.repository.TransactionRepository;
 import com.example.cash.service.TransactionService;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 
 import jakarta.transaction.Transactional;
 
@@ -194,4 +202,71 @@ public class TransactionServiceImpl implements TransactionService {
         return transactions;
     }
 
+    @Transactional
+    @Override
+    public Void importTransactionCSV(MultipartFile file, Long accountID, Boolean count) throws Exception {
+        List<Category> categoryList = categoryRepository.findAll();
+        Account account = accountRepository.findById(accountID)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
+        List<TransactionCSV> csvRows;
+        try (Reader reader = new InputStreamReader(file.getInputStream())) {
+            HeaderColumnNameMappingStrategy<TransactionCSV> strategy = new HeaderColumnNameMappingStrategy<>();
+            strategy.setType(TransactionCSV.class);
+
+            CsvToBean<TransactionCSV> csvToBean = new CsvToBeanBuilder<TransactionCSV>(reader)
+                    .withMappingStrategy(strategy)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .withIgnoreQuotations(true) // handles those extra quotes
+                    .build();
+
+            csvRows = csvToBean.parse();
+        }
+
+        List<Transaction> transactions = new ArrayList<>();
+        BigDecimal totalNominal = BigDecimal.ZERO;
+
+        for (TransactionCSV row : csvRows) {
+            System.out.println("Mapped row: " + row);
+
+            Transaction transaction = new Transaction();
+            transaction.setDate(
+                    new java.sql.Date(
+                            new java.text.SimpleDateFormat("dd/MM/yyyy").parse(row.getDate()).getTime()
+                    )
+            );
+            transaction.setDescription(row.getDescription());
+            boolean statusTmp = row.getStatus().equalsIgnoreCase("masuk") || row.getStatus().equalsIgnoreCase("in");
+            transaction.setStatus(statusTmp);
+            BigDecimal totalTmp = new BigDecimal(row.getTotal());
+            transaction.setTotal(totalTmp);
+            if(statusTmp){
+                totalNominal = totalNominal.add(totalTmp);
+            }else{
+                totalNominal = totalNominal.subtract(totalTmp);
+            }
+            transaction.setAccount(account);
+
+            Long categoryId = categoryList.stream()
+                    .filter(c -> c.getName().equalsIgnoreCase(row.getCategory()))
+                    .map(Category::getId)
+                    .findFirst()
+                    .orElse(9L);
+
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+            transaction.setCategory(category);
+
+            transactions.add(transaction);
+        }
+
+        System.out.println("Data size: " + transactions.size());
+        transactionRepository.saveAll(transactions);
+        if(count){
+            totalNominal = account.getBalance().add(totalNominal);
+            account.setBalance(totalNominal);
+            accountRepository.save(account);
+        }
+        return null;
+    }
 }

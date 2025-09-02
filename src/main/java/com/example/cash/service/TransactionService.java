@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.example.cash.dto.TransactionCategoryDTO;
 import com.example.cash.dto.TransactionDTO;
 import com.example.cash.dto.TransactionDateDTO;
@@ -32,4 +34,6 @@ public interface TransactionService {
     public List<TransactionJoinCategoryDTO> getTransactionCategoryName(Long accountID, Date start, Date end);
 
     public List<TransactionJoinCategoryDTO> getTransactionCategoryNameLimitOne(Long accountID, Date start, Date end);
+
+    public Void importTransactionCSV(MultipartFile file, Long accountID, Boolean count) throws Exception;
 }
