@@ -19,7 +19,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDTO> findAllCategory() {
-        List<Category> categories = categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAllCategoryLast();
         return categories.stream().map((category) -> {
             CategoryDTO dto = new CategoryDTO();
             dto.setId(category.getId());

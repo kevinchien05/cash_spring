@@ -240,9 +240,9 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setStatus(statusTmp);
             BigDecimal totalTmp = new BigDecimal(row.getTotal());
             transaction.setTotal(totalTmp);
-            if(statusTmp){
+            if (statusTmp) {
                 totalNominal = totalNominal.add(totalTmp);
-            }else{
+            } else {
                 totalNominal = totalNominal.subtract(totalTmp);
             }
             transaction.setAccount(account);
@@ -262,11 +262,21 @@ public class TransactionServiceImpl implements TransactionService {
 
         System.out.println("Data size: " + transactions.size());
         transactionRepository.saveAll(transactions);
-        if(count){
+        if (count) {
             totalNominal = account.getBalance().add(totalNominal);
             account.setBalance(totalNominal);
             accountRepository.save(account);
         }
         return null;
+    }
+
+    @Transactional
+    @Override
+    public BigDecimal getAccountIncomeDashboard(Long accountID, Date start, Date end) {
+        start = ObjectUtils.isEmpty(start) ? null : start;
+        end = ObjectUtils.isEmpty(end) ? null : end;
+        List<Transaction> transactions = transactionRepository.findIncomeDashboardByAccountIDAndMonthAndCategoryID(accountID, start, end);
+        BigDecimal total = transactions.stream().map(Transaction::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return total;
     }
 }

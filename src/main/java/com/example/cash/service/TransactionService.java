@@ -36,4 +36,7 @@ public interface TransactionService {
     public List<TransactionJoinCategoryDTO> getTransactionCategoryNameLimitOne(Long accountID, Date start, Date end);
 
     public Void importTransactionCSV(MultipartFile file, Long accountID, Boolean count) throws Exception;
+
+    public BigDecimal getAccountIncomeDashboard(Long accountID, Date start, Date end);
+
 }

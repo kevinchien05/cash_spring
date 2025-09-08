@@ -18,6 +18,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     // public static final String SELECT_FROM_TRANSACTION_WHERE_ACCOUNT_ID_ACCOUNT_ID_AND_DATE_DATE_BETWEEN_START_AND_END_AND_DESCRIPTION_ILIKE_DESCRIPTION = "SELECT * FROM transaction WHERE account_id = :accountId AND DATE(date) BETWEEN :start AND :end AND description LIKE %:description% ORDER BY date ASC";
 
     public static final String SELECT_FROM_TRANSACTION_BALANCE = "SELECT * FROM transaction WHERE account_id = :accountId AND DATE(date) BETWEEN :start AND :end AND category_id = :categoryId AND status = true";
+    
+    public static final String SELECT_FROM_TRANSACTION_BALANCE_DASHBOARD = "SELECT * FROM transaction WHERE account_id = :accountId AND DATE(date) BETWEEN :start AND :end AND status = true";
 
     public static final String SELECT_FROM_TRANSACTION_OUTCOME = "SELECT * FROM transaction WHERE account_id = :accountId AND DATE(date) BETWEEN :start AND :end AND status = false";
 
@@ -37,6 +39,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query(value = SELECT_FROM_TRANSACTION_BALANCE, nativeQuery = true)
     List<Transaction> findIncomeByAccountIDAndMonthAndCategoryID(Long accountId, Date start, Date end, Long categoryId);
+    
+    @Query(value = SELECT_FROM_TRANSACTION_BALANCE_DASHBOARD, nativeQuery = true)
+    List<Transaction> findIncomeDashboardByAccountIDAndMonthAndCategoryID(Long accountId, Date start, Date end);
 
     @Query(value = SELECT_FROM_TRANSACTION_GROUP_BY_CATEGORY, nativeQuery = true)
     List<TransactionSumDTO> findTransactionSumGroupByCategory(Long accountId, Date start, Date end);
