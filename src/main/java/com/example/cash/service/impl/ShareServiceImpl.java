@@ -50,10 +50,12 @@ public class ShareServiceImpl implements ShareService {
         throw new UnsupportedOperationException("Unimplemented method 'createShare'");
     }
 
+    @Transactional
     @Override
     public String deleteShare(Long accoundId, Long userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteShare'");
+        Share dto = shareRepository.findOneByAccount_IdAndUser_Id(accoundId, userId);
+        shareRepository.delete(dto);
+        return "Sharing Relationship Deleted";
     }
 
     @Transactional

@@ -10,4 +10,6 @@ public interface ShareRepository extends JpaRepository<Share, Long> {
     List<Share> findAllByUser_Id(Long userId);
 
     List<Share> findAllByAccount_Id(Long accountId);
+
+    Share findOneByAccount_IdAndUser_Id(Long accountId, Long userId);
 }
