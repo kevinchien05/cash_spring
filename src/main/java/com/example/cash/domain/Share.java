@@ -2,6 +2,7 @@ package com.example.cash.domain;
 
 import java.io.Serializable;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,9 +10,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "share")
+@Table(name = "share", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"userId", "accountId"})
+})
 public class Share implements Serializable {
 
     private static final long serialVersionUID = 4814591961420161084L;
@@ -27,6 +31,9 @@ public class Share implements Serializable {
     @ManyToOne
     @JoinColumn(name = "accountId", nullable = false)
     private Account account;
+
+    @Column(name = "access")
+    private Long access;
 
     public Long getId() {
         return id;
@@ -52,6 +59,12 @@ public class Share implements Serializable {
         this.account = account;
     }
 
-    
+    public Long getAccess() {
+        return access;
+    }
+
+    public void setAccess(Long access) {
+        this.access = access;
+    }
 
 }

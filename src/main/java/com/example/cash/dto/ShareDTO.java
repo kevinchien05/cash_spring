@@ -1,34 +1,24 @@
 package com.example.cash.dto;
 
 public class ShareDTO {
-    private Long id;
+    private String email;
 
-    private Long userId;
+    private Long access;
 
-    private Long accountId;
-
-    public Long getId() {
-        return id;
+    public String getEmail() {
+        return email;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getAccess() {
+        return access;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Long getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
+    public void setAccess(Long access) {
+        this.access = access;
     }
 
     

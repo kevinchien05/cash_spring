@@ -2,16 +2,18 @@ package com.example.cash.service;
 
 import java.util.List;
 
-import com.example.cash.domain.User;
-import com.example.cash.dto.AccountDTO;
-import com.example.cash.dto.UserCreateDTO;
+import com.example.cash.dto.ShareAccountDTO;
+import com.example.cash.dto.ShareDTO;
+import com.example.cash.dto.ShareUserDTO;
 
 public interface ShareService {
-    public List<AccountDTO> getSharedAccount(Long userId);
+    public List<ShareAccountDTO> getSharedAccount(Long userId);
 
-    public String createShare(Long accountId, String email);
+    public String createShare(Long accountId, ShareDTO dto);
 
     public String deleteShare(Long accoundId, Long userId);
 
-    public List<User> getSharedUser(Long accountId);
+    public List<ShareUserDTO> getSharedUser(Long accountId);
+
+    public String editShare(Long accountId, Long userId, Long access);
 }
