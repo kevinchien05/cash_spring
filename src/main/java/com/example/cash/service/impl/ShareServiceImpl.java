@@ -36,6 +36,7 @@ public class ShareServiceImpl implements ShareService {
     public List<ShareAccountDTO> getSharedAccount(Long userId) {
         List<Share> shares = shareRepository.findAllByUser_Id(userId);
         return shares.stream()
+                .filter(share -> share.getAccount() != null)
                 .map(share -> {
                     Account account = share.getAccount(); // no need for findById()
                     ShareAccountDTO dto = new ShareAccountDTO();
@@ -64,7 +65,7 @@ public class ShareServiceImpl implements ShareService {
                 share.setAccess(dto.getAccess());
                 shareRepository.save(share);
                 return "Share Relationship Created";
-            }else{
+            } else {
                 return "Email Not Found";
             }
         }
