@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,7 +30,7 @@ public class Share implements Serializable {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "accountId", nullable = false)
+    @JoinColumn(name = "accountId", nullable = false, foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE SET NULL"))
     private Account account;
 
     @Column(name = "access")

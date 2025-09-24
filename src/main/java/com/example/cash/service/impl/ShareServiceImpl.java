@@ -54,12 +54,20 @@ public class ShareServiceImpl implements ShareService {
     public String createShare(Long accountId, ShareDTO dto) {
         Share share = new Share();
         Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("account not found"));
-        User user = userRepository.findByEmail(dto.getEmail().toLowerCase());
-        share.setAccount(account);
-        share.setUser(user);
-        share.setAccess(dto.getAccess());
-        shareRepository.save(share);
-        return "Share Relationship Created";
+        if (account.getUser().getEmail().equalsIgnoreCase(dto.getEmail())) {
+            return "Cannot Self Share Account";
+        } else {
+            User user = userRepository.findByEmail(dto.getEmail().toLowerCase());
+            if (user != null) {
+                share.setAccount(account);
+                share.setUser(user);
+                share.setAccess(dto.getAccess());
+                shareRepository.save(share);
+                return "Share Relationship Created";
+            }else{
+                return "Email Not Found";
+            }
+        }
     }
 
     @Transactional
