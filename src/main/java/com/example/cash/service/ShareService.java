@@ -7,7 +7,7 @@ import com.example.cash.dto.ShareDTO;
 import com.example.cash.dto.ShareUserDTO;
 
 public interface ShareService {
-    public List<ShareAccountDTO> getSharedAccount(Long userId);
+    public List<ShareAccountDTO> getSharedAccount(Long userId, String name);
 
     public String createShare(Long accountId, ShareDTO dto);
 

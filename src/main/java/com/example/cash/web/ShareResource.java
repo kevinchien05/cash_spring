@@ -31,8 +31,8 @@ public class ShareResource {
     private ShareService shareService;
 
     @GetMapping("/share/account")
-    public ResponseEntity<List<ShareAccountDTO>> getSharedAccount(@RequestParam Long id) {
-        List<ShareAccountDTO> dtos = shareService.getSharedAccount(id);
+    public ResponseEntity<List<ShareAccountDTO>> getSharedAccount(@RequestParam Long id, @RequestParam(value="name", required=false) String name) {
+        List<ShareAccountDTO> dtos = shareService.getSharedAccount(id, name);
         return ResponseEntity.ok(dtos);
     }
     

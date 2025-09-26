@@ -33,9 +33,9 @@ public class ShareServiceImpl implements ShareService {
 
     @Transactional
     @Override
-    public List<ShareAccountDTO> getSharedAccount(Long userId) {
+    public List<ShareAccountDTO> getSharedAccount(Long userId, String name) {
         List<Share> shares = shareRepository.findAllByUser_Id(userId);
-        return shares.stream()
+        List<ShareAccountDTO> dtos = shares.stream()
                 .filter(share -> share.getAccount() != null)
                 .map(share -> {
                     Account account = share.getAccount(); // no need for findById()
@@ -49,6 +49,12 @@ public class ShareServiceImpl implements ShareService {
                     return dto;
                 })
                 .toList();
+        // return dtos;
+        if(name.isEmpty()){
+            return dtos;
+        } else{
+            return dtos.stream().filter(dto -> dto.getName().toLowerCase().contains(name.toLowerCase())).toList();
+        }
     }
 
     @Override
