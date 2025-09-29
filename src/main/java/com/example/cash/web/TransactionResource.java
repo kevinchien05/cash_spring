@@ -5,12 +5,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,26 +30,27 @@ import com.example.cash.dto.TransactionDTO;
 import com.example.cash.dto.TransactionDateDTO;
 import com.example.cash.dto.TransactionJoinCategoryDTO;
 import com.example.cash.dto.TransactionSumDTO;
-import com.example.cash.repository.TransactionRepository;
 import com.example.cash.service.TransactionService;
 
 @RestController
 @RequestMapping("/api")
 public class TransactionResource {
 
-    private final TransactionRepository transactionRepository;
-
     @Autowired
     private TransactionService transactionService;
 
-    TransactionResource(TransactionRepository transactionRepository) {
-        this.transactionRepository = transactionRepository;
-    }
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("/add/transaction/{id}")
     public ResponseEntity<String> addNewTransaction(@RequestBody TransactionDTO dto, @PathVariable Long id) throws URISyntaxException {
         String result = transactionService.addNewTransaction(dto, id);
         if ("Transaction Created".equals(result)) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("action", "ADD");
+            payload.put("data", dto);
+            payload.put("id",id);
+            messagingTemplate.convertAndSend("/topic/transaction", payload);
             return ResponseEntity.created(new URI("/add/transaction")).build();
         } else {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
