@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.cash.domain.Account;
 import com.example.cash.dto.AccountDTO;
 import com.example.cash.service.AccountService;
 
@@ -35,15 +36,15 @@ public class AccountResource {
 
     @PostMapping("/add/account")
     public ResponseEntity<String> addAccount(@RequestBody AccountDTO dto) throws URISyntaxException {
-        String result = accountService.addAccount(dto);
-        if ("Account created".equals(result)) {
+        Account result = accountService.addAccount(dto);
+        if (result != null) {
             Map<String, Object> payload = new HashMap<>();
             payload.put("action", "ADD");
-            payload.put("data", dto);
-            messagingTemplate.convertAndSend("/topic/accounts/"+dto.getUserId(),payload);
+            payload.put("data", result);
+            messagingTemplate.convertAndSend("/topic/accounts/" + dto.getUserId(), payload);
             return ResponseEntity.created(new URI("/add/account")).build();
         } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("fail");
         }
     }
 
@@ -51,6 +52,11 @@ public class AccountResource {
     public ResponseEntity<?> editAccount(@PathVariable Long id, @RequestBody AccountDTO dto) {
         String result = accountService.editAccount(dto, id);
         if ("Account edited".equals(result)) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("action","EDIT");
+            payload.put("data",dto);
+            payload.put("id", id);
+            messagingTemplate.convertAndSend("/topic/accounts", payload);
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
@@ -60,17 +66,16 @@ public class AccountResource {
     @DeleteMapping("/delete/account/{id}")
     public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
         accountService.deleteAccount(id);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("action", "DELETE");
+        payload.put("data", id);
+        messagingTemplate.convertAndSend("/topic/accounts", payload);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/accounts")
-    public ResponseEntity<List<AccountDTO>> getAllAccountByUserID(@RequestParam(value="id", required=true) Long id, @RequestParam(value="name", required=false) String name) {
-        List<AccountDTO> dtos = accountService.findAccountByUser(id, name); 
-        
-    
-        
-
-    
+    public ResponseEntity<List<AccountDTO>> getAllAccountByUserID(@RequestParam(value = "id", required = true) Long id, @RequestParam(value = "name", required = false) String name) {
+        List<AccountDTO> dtos = accountService.findAccountByUser(id, name);
         return ResponseEntity.ok(dtos);
     }
 

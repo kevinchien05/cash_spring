@@ -16,4 +16,6 @@ public interface ShareService {
     public List<ShareUserDTO> getSharedUser(Long accountId);
 
     public String editShare(Long accountId, Long userId, Long access);
+
+    public ShareAccountDTO setShareAccountDTO(Long accountId, Long access);
 }

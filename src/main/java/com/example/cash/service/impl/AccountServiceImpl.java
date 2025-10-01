@@ -46,20 +46,20 @@ public class AccountServiceImpl implements AccountService {
 
     @Transactional
     @Override
-    public String addAccount(AccountDTO dto) {
+    public Account addAccount(AccountDTO dto) {
         Account account = new Account();
         User user = userRepository.findById(dto.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
         List<Account> accounts = accountRepository.findAllByUser_Id(user.getId());
         Boolean contains = accounts.stream().anyMatch(acc -> acc.getName().equalsIgnoreCase(dto.getName()));
-        if (!contains) {
-            account.setName(dto.getName());
-            account.setBalance(dto.getBalance());
-            account.setDescription(dto.getDescription());
-            account.setUser(user);
-            accountRepository.save(account);
-            return "Account created";
+        if (contains) {
+            return null;
         }
-        return "Account is already created";
+        account.setName(dto.getName());
+        account.setBalance(dto.getBalance());
+        account.setDescription(dto.getDescription());
+        account.setUser(user);
+        Account saved = accountRepository.save(account);
+        return saved;
     }
 
     @Transactional

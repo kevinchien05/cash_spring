@@ -110,4 +110,21 @@ public class ShareServiceImpl implements ShareService {
         return "Sharing Relationship Edited";
     }
 
+    @Transactional
+    @Override
+    public ShareAccountDTO setShareAccountDTO(Long accountId, Long access) {
+        ShareAccountDTO dto = new ShareAccountDTO();
+        Account acc = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
+        dto.setId(acc.getId());
+        dto.setName(acc.getName());
+        dto.setBalance(acc.getBalance());
+        dto.setDescription(acc.getDescription());
+        dto.setUsername(acc.getUser().getUsername());
+        dto.setAccess(access);
+        return dto;
+    }
+
+
+    
+
 }
