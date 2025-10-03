@@ -71,7 +71,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Transactional
     @Override
-    public String addNewTransaction(TransactionDTO dto, Long accountId) {
+    public TransactionCategoryDTO addNewTransaction(TransactionDTO dto, Long accountId) {
         Transaction transaction = new Transaction();
         Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
         Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category Not Found"));
@@ -95,15 +95,27 @@ public class TransactionServiceImpl implements TransactionService {
                 transactionRepository.save(transaction);
                 accountRepository.save(account);
             } else {
-                return "Account Balance Is Not Enough";
+                return null;
             }
         }
-        return "Transaction Created";
+        TransactionCategoryDTO res = new TransactionCategoryDTO();
+        res.setId(transaction.getId());
+        res.setDate(transaction.getDate());
+        res.setDescription(transaction.getDescription());
+        if (transaction.getStatus()) {
+            res.setStatus("In");
+        } else {
+            res.setStatus("Out");
+        }
+        res.setTotal(transaction.getTotal());
+        res.setAccountId(transaction.getAccount().getId());
+        res.setCategoryName(transaction.getCategory().getName());
+        return res;
 
     }
 
     @Override
-    public String editTransaction(Long id, TransactionDTO dto) {
+    public TransactionCategoryDTO editTransaction(Long id, TransactionDTO dto) {
         Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction Not Found"));
         Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category Not Found"));
         Account account = accountRepository.findById(transaction.getAccount().getId()).orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
@@ -132,10 +144,22 @@ public class TransactionServiceImpl implements TransactionService {
                 transactionRepository.save(transaction);
                 accountRepository.save(account);
             } else {
-                return "Account Balance Is Not Enough";
+                return null;
             }
         }
-        return "Transaction Edited";
+        TransactionCategoryDTO res = new TransactionCategoryDTO();
+        res.setId(transaction.getId());
+        res.setDate(transaction.getDate());
+        res.setDescription(transaction.getDescription());
+        if (transaction.getStatus()) {
+            res.setStatus("In");
+        } else {
+            res.setStatus("Out");
+        }
+        res.setTotal(transaction.getTotal());
+        res.setAccountId(transaction.getAccount().getId());
+        res.setCategoryName(transaction.getCategory().getName());
+        return res;
     }
 
     //transaksi berhasil dihapus akan tetapi total balance pada account masi belum berubah

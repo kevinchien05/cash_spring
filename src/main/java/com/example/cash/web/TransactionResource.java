@@ -44,31 +44,39 @@ public class TransactionResource {
 
     @PostMapping("/add/transaction/{id}")
     public ResponseEntity<String> addNewTransaction(@RequestBody TransactionDTO dto, @PathVariable Long id) throws URISyntaxException {
-        String result = transactionService.addNewTransaction(dto, id);
-        if ("Transaction Created".equals(result)) {
+        TransactionCategoryDTO result = transactionService.addNewTransaction(dto, id);
+        if (result != null) {
             Map<String, Object> payload = new HashMap<>();
             payload.put("action", "ADD");
-            payload.put("data", dto);
-            payload.put("id",id);
-            messagingTemplate.convertAndSend("/topic/transaction", payload);
+            payload.put("data", result);
+            payload.put("id", id);
+            messagingTemplate.convertAndSend("/topic/transaction/" + id, payload);
             return ResponseEntity.created(new URI("/add/transaction")).build();
         } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("fail");
         }
     }
 
     @PutMapping("edit/transaction/{id}")
     public ResponseEntity<?> editTransaction(@PathVariable Long id, @RequestBody TransactionDTO dto) {
-        String result = transactionService.editTransaction(id, dto);
-        if ("Transaction Edited".equals(result)) {
+        TransactionCategoryDTO result = transactionService.editTransaction(id, dto);
+        if (result != null) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("action", "EDIT");
+            payload.put("data", result);
+            messagingTemplate.convertAndSend("/topic/transaction", payload);
             return ResponseEntity.ok().build();
         } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("fail");
         }
     }
 
     @DeleteMapping("delete/transaction/{id}")
     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("action", "DELETE");
+        payload.put("data", id);
+        messagingTemplate.convertAndSend("/topic/transaction", payload);
         transactionService.deleteTransaction(id);
         return ResponseEntity.ok().build();
     }
