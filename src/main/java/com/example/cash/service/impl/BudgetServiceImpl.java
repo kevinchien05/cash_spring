@@ -35,7 +35,7 @@ public class BudgetServiceImpl implements BudgetService {
     @Transactional
     @Override
     public List<BudgetCategoryDTO> getAllBudget(Long account_id, Date start, Date end) {
-        List<Budget> dtos = budgetRepository.findAllByAccount_IdAndDate(account_id,start,end);
+        List<Budget> dtos = budgetRepository.findAllByAccount_IdAndDate(account_id, start, end);
         return dtos.stream().map(budget -> {
             BudgetCategoryDTO dto = new BudgetCategoryDTO();
             dto.setId(budget.getId());
@@ -49,27 +49,40 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
-    public String addNewBudget(Long account_id, BudgetDTO dto) {
+    public BudgetCategoryDTO addNewBudget(Long account_id, BudgetDTO dto) {
         Budget budget = new Budget();
         Account account = accountRepository.findById(account_id).orElseThrow(() -> new ResourceNotFoundException("account not found"));
-        Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("category not found")); 
+        Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("category not found"));
         budget.setTotal(dto.getTotal());
         budget.setDate(dto.getDate());
         budget.setAccount(account);
         budget.setCategory(category);
         budgetRepository.save(budget);
-        return "Budget Created";
+        BudgetCategoryDTO res = new BudgetCategoryDTO();
+        res.setId(budget.getId());
+        res.setTotal(budget.getTotal());
+        res.setDate(budget.getDate());
+        res.setAccountId(account_id);
+        res.setCategoryId(budget.getCategory().getId());
+        res.setCategoryName(budget.getCategory().getName());
+        return res;
     }
 
-
     @Override
-    public String editBudget(Long id, BudgetDTO dto) {
+    public BudgetCategoryDTO editBudget(Long id, BudgetDTO dto) {
         Budget budget = budgetRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Budget Not Found"));
         Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("category not found"));
         budget.setTotal(dto.getTotal());
         budget.setCategory(category);
         budgetRepository.save(budget);
-        return "Budget Edited"; 
+        BudgetCategoryDTO res = new BudgetCategoryDTO();
+        res.setId(budget.getId());
+        res.setTotal(budget.getTotal());
+        res.setDate(budget.getDate());
+        res.setAccountId(budget.getAccount().getId());
+        res.setCategoryId(budget.getCategory().getId());
+        res.setCategoryName(budget.getCategory().getName());
+        return res;
     }
 
     @Override

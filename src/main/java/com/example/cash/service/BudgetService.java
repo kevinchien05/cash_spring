@@ -9,9 +9,9 @@ import com.example.cash.dto.BudgetDTO;
 public interface BudgetService {
     public List<BudgetCategoryDTO> getAllBudget(Long account_id, Date start, Date end);
 
-    public String addNewBudget(Long account_id, BudgetDTO dto);
+    public BudgetCategoryDTO addNewBudget(Long account_id, BudgetDTO dto);
 
-    public String editBudget(Long id, BudgetDTO dto);
+    public BudgetCategoryDTO editBudget(Long id, BudgetDTO dto);
 
     public String deleteBudget(Long id);
 }
